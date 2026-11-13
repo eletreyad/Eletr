@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E&E - لحل المنصة</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+    body { background: #0a0a0a; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    body::before {
+        content: ''; position: fixed; inset: 0;
+        background: radial-gradient(circle at 20% 20%, rgba(255, 0, 0, 0.12) 0%, transparent 40%),
+                    radial-gradient(circle at 80% 80%, rgba(255, 0, 0, 0.10) 0%, transparent 40%),
+                    radial-gradient(circle at 50% 50%, rgba(200, 0, 0, 0.06) 0%, transparent 60%);
+        animation: pulseBg 6s ease-in-out infinite;
+    }
+    @keyframes pulseBg { 0%,100% { opacity: .8; } 50% { opacity: 1; } }
+    .grid-overlay {
+        position: fixed; inset: 0; pointer-events: none;
+        background-image: linear-gradient(rgba(255,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,0,0,0.04) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+    .page { display: none; width: 100%; max-width: 480px; padding: 24px; text-align: center; animation: fadeSlideIn .5s ease forwards; position: relative; z-index: 2; }
+    .page.active { display: block; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
+    .logo { font-size: 3.2rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 8px; }
+    .logo .e1 { color: #ff1f1f; text-shadow: 0 0 25px rgba(255,0,0,.8); }
+    .logo .amp { color: #555; font-size: 2rem; margin: 0 6px; }
+    .logo .e2 { color: #fff; text-shadow: 0 0 15px rgba(255,255,255,.4); }
+    .tagline { color: #ff4040; font-size: 1rem; letter-spacing: 6px; margin-bottom: 40px; font-weight: 600; }
+    h1.welcome-title { font-size: 1.7rem; margin-bottom: 14px; line-height: 1.6; }
+    h1.welcome-title .red { color: #ff1f1f; }
+    .welcome-sub { color: #999; margin-bottom: 45px; font-size: .95rem; }
+    h2.step-title { font-size: 1.4rem; margin-bottom: 8px; }
+    h2.step-title .red { color: #ff1f1f; }
+    .step-sub { color: #888; font-size: .85rem; margin-bottom: 35px; }
+    .btn { display: block; width: 100%; padding: 17px 24px; margin: 12px 0; font-size: 1.05rem; font-weight: 700; border-radius: 14px; cursor: pointer; transition: all .25s ease; border: 2px solid #ff1f1f; position: relative; overflow: hidden; }
+    .btn-red { background: linear-gradient(135deg, #ff1f1f, #b30000); color: #fff; box-shadow: 0 0 25px rgba(255,0,0,.35); }
+    .btn-red:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 40px rgba(255,0,0,.6); }
+    .btn-outline { background: transparent; color: #ff4040; }
+    .btn-outline:hover { background: rgba(255,0,0,0.1); transform: translateY(-3px); box-shadow: 0 0 25px rgba(255,0,0,.25); }
+    .start-btn { font-size: 1.4rem; padding: 20px; letter-spacing: 2px; }
+    .start-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); animation: shine 2.5s infinite; }
+    @keyframes shine { 0% { left: -100%; } 60%,100% { left: 200%; } }
+    .input-group { text-align: right; margin-bottom: 18px; }
+    .input-group label { display: block; color: #ff5050; font-size: .85rem; margin-bottom: 8px; font-weight: 600; }
+    .input-group input { width: 100%; padding: 15px 18px; background: #141414; border: 2px solid #2a2a2a; border-radius: 12px; color: #fff; font-size: 1rem; outline: none; transition: all .25s; }
+    .input-group input:focus { border-color: #ff1f1f; box-shadow: 0 0 15px rgba(255,0,0,.3); }
+    .back-link { background: none; border: none; color: #666; cursor: pointer; margin-top: 28px; font-size: .9rem; transition: color .2s; }
+    .back-link:hover { color: #ff4040; }
+    .selected-subject { display: inline-block; background: rgba(255,0,0,.12); border: 1px solid #ff1f1f; color: #ff5050; padding: 8px 22px; border-radius: 30px; font-size: .9rem; margin-bottom: 25px; font-weight: 700; }
+    .loader-ring { width: 90px; height: 90px; border: 5px solid rgba(255,0,0,.15); border-top-color: #ff1f1f; border-radius: 50%; margin: 0 auto 30px; animation: spin 1s linear infinite; box-shadow: 0 0 30px rgba(255,0,0,.2); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .solving-text { font-size: 1.6rem; font-weight: 800; color: #ff1f1f; letter-spacing: 1px; margin-bottom: 12px; animation: blink 1.4s ease-in-out infinite; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+    .solving-sub { color: #777; font-size: .9rem; margin-bottom: 15px; }
+    .dots span { display: inline-block; width: 8px; height: 8px; background: #ff1f1f; border-radius: 50%; margin: 0 4px; animation: bounce 1.2s infinite; }
+    .dots span:nth-child(2) { animation-delay: .15s; }
+    .dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+
+<div class="page active" id="page-welcome">
+    <div class="logo"><span class="e1">E</span><span class="amp">&</span><span class="e2">E</span></div>
+    <div class="tagline">لحل المنصة</div>
+    <h1 class="welcome-title">أهلاً بيك في موقع <span class="red">E&E</span></h1>
+    <p class="welcome-sub">منصتك لحل جميع متطلباتك الدراسية بكل سهولة</p>
+    <button class="btn btn-red start-btn" onclick="goTo('page-grade')">Start</button>
+</div>
+
+<div class="page" id="page-grade">
+    <div class="logo"><span class="e1">E</span><span class="amp">&</span><span class="e2">E</span></div>
+    <div class="tagline">لحل المنصة</div>
+    <h2 class="step-title">اختر <span class="red">صفك الدراسي</span></h2>
+    <p class="step-sub">حدد المرحلة اللي هتحل منها</p>
+    <button class="btn btn-red" onclick="chooseGrade('أولى بكالوريا')">أولى بكالوريا</button>
+    <button class="btn btn-outline" onclick="chooseGrade('تانية بكالوريا')">تانية بكالوريا</button>
+    <button class="back-link" onclick="goTo('page-welcome')">← رجوع</button>
+</div>
+
+<div class="page" id="page-subject-1">
+    <div class="logo"><span class="e1">E</span><span class="amp">&</span><span class="e2">E</span></div>
+    <div class="tagline">لحل المنصة</div>
+    <h2 class="step-title">اختر <span class="red">المادة</span></h2>
+    <p class="step-sub">أولى بكالوريا</p>
+    <button class="btn btn-red" onclick="chooseSubject('Java', 'code')">Java</button>
+    <button class="back-link" onclick="goTo('page-grade')">← رجوع</button>
+</div>
+
+<div class="page" id="page-subject-2">
+    <div class="logo"><span class="e1">E</span><span class="amp">&</span><span class="e2">E</span></div>
+    <div class="tagline">لحل المنصة</div>
+    <h2 class="step-title">اختر <span class="red">المادة</span></h2>
+    <p class="step-sub">تانية بكالوريا</p>
+    <button class="btn btn-red" onclick="chooseSubject('Java', 'code')">Java</button>
+    <button class="btn btn-outline" onclick="chooseSubject('Python', 'code')">Python</button>
+    <button class="btn btn-outline" onclick="chooseSubject('الثقافة المالية', 'mcq')">الثقافة المالية</button>
+    <button class="back-link" onclick="goTo('page-grade')">← رجوع</button>
+</div>
+
+<div class="page" id="page-login">
+    <div class="logo"><span class="e1">E</span><span class="amp">&</span><span class="e2">E</span></div>
+    <div class="tagline">لحل المنصة</div>
+    <h2 class="step-title">أدخل <span class="red">بياناتك</span></h2>
+    <div class="selected-subject" id="display-subject"></div>
+    <div class="input-group">
+        <label>اسم المستخدم</label>
+        <input type="text" id="username" placeholder="أدخل اسم المستخدم">
+    </div>
+    <div class="input-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="password" placeholder="أدخل كلمة المرور">
+    </div>
+    <button class="btn btn-red" onclick="startSolving()">ابدأ الحل</button>
+    <button class="back-link" onclick="goBackToSubjects()">← رجوع</button>
+</div>
+
+<div class="page" id="page-solving">
+    <div class="logo"><span class="e1">E</span><span class="amp">&</span><span class="e2">E</span></div>
+    <div class="tagline">لحل المنصة</div>
+    <div class="loader-ring" id="loader"></div>
+    <div class="solving-text" id="solving-status">جاري الحل</div>
+    <p class="solving-sub" id="solving-details">جاري الاتصال بالسيرفر وتسجيل الدخول...</p>
+    <div class="dots" id="dots"><span></span><span></span><span></span></div>
+    <button class="back-link" id="done-btn" style="display:none; color:#ff4040;" onclick="goTo('page-welcome')">العودة للرئيسية</button>
+</div>
+
+<script>
+    const SERVER_URL = "http://127.0.0";
+    let currentGrade = '';
+    let currentSubject = '';
+    let subjectType = '';
+
+    function goTo(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    function chooseGrade(grade) {
+        currentGrade = grade;
+        goTo(grade === 'أولى بكالوريا' ? 'page-subject-1' : 'page-subject-2');
+    }
+
+    function chooseSubject(subject, type) {
+        currentSubject = subject;
+        subjectType = type;
+        document.getElementById('display-subject').innerText = `${currentGrade} • ${currentSubject}`;
+        goTo('page-login');
+    }
+
+    function goBackToSubjects() {
+        goTo(currentGrade === 'أولى بكالوريا' ? 'page-subject-1' : 'page-subject-2');
+    }
+
+    async function startSolving() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        if (!username || !password) {
+            alert('من فضلك أدخل اسم المستخدم وكلمة المرور');
+            return;
+        }
+
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('dots').style.display = 'block';
+        document.getElementById('done-btn').style.display = 'none';
+        document.getElementById('solving-status').innerText = 'جاري الحل';
+        document.getElementById('solving-details').innerText = 'جاري الاتصال بالسيرفر وتسجيل الدخول...';
+        goTo('page-solving');
+
+        try {
+            const response = await fetch(SERVER_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ grade: currentGrade, subject: currentSubject, type: subjectType, username, password })
+            });
+
+            const data = await response.json();
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('dots').style.display = 'none';
+            document.getElementById('solving-status').innerText = data.status === 'success' ? 'تم بنجاح!' : 'حدث خطأ';
+            document.getElementById('solving-details').innerText = data.message;
+            document.getElementById('done-btn').style.display = 'inline-block';
+
+        } catch (error) {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('dots').style.display = 'none';
+            document.getElementById('solving-status').innerText = 'فشل الاتصال';
+            document.getElementById('solving-details').innerText = 'تأكد إن Termux شغال وإن رابط السيرفر محدّث، وافتح الموقع من جوجل كروم.';
+            document.getElementById('done-btn').style.display = 'inline-block';
+        }
+    }
+</script>
+</body>
+</html>
+ml>
